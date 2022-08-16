@@ -1,0 +1,15 @@
+<button routerLink="/">Back to list of stocks</button>
+
+<h2>{{stocks.symbol}}</h2>
+
+<main class="content-contaniner">
+
+  <div class="stock-item" *ngFor="let item of stocks.data">
+    <div>
+      <h3>{{item.month}}</h3>
+
+      <p>Change: {{item.change}}</p>
+      <p>MSPR: {{item.mspr}}</p>
+    </div>
+  </div>
+</main>
