@@ -4,4 +4,6 @@ export interface Stock {
     dp: number;
     h: number;
     l: number;
+    o: number;
+    pc: number;
 }

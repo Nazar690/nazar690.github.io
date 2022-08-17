@@ -1,9 +1,13 @@
 import { Subscription, switchMap } from 'rxjs';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { StocksService } from '../../services';
 import { DatePipe } from '@angular/common';
+
+import { StocksService } from '../../services';
+import { SymbolSentimentDetails } from '../../models/symbol-sentiment-details';
+
+import { SymbolSentimentLookup } from '../../models/symbol-sentiment-lookup';
 
 @Component({
   selector: 'app-stock-details',
@@ -11,9 +15,9 @@ import { DatePipe } from '@angular/common';
   styleUrls: ['./stock-details.component.scss'],
   providers: [DatePipe]
 })
-export class StockDetailsComponent implements OnInit {
+export class StockDetailsComponent implements OnInit, OnDestroy {
 
-  stocks: any;
+  stocks: SymbolSentimentLookup = {} as SymbolSentimentLookup;
   subscription$ = new Subscription();
   dateFrom = new Date(
     new Date().getFullYear(),
@@ -26,23 +30,24 @@ export class StockDetailsComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly stocksService: StocksService,
     private readonly datePipe: DatePipe
-  ) {
-  }
+  ) { }
 
   ngOnInit() {
     const from = this.datePipe.transform(this.dateFrom, 'yyyy-MM-dd');
     const to = this.datePipe.transform(this.dateTo, 'yyyy-MM-dd');
 
-    console.log(from)
-
     this.subscription$.add(
       this.route.params.pipe(switchMap(params => {
-        const symbol = params['symbol'];
-        return this.stocksService.getSentiment(symbol, from, to)
-      })).subscribe(res => {
-        this.stocks = res;
-      })
+        return this.stocksService.getSentiment(params['symbol'], from, to)
+      })).subscribe(res => this.stocks = res)
     )
   }
 
+  ngOnDestroy() {
+    this.subscription$.unsubscribe();
+  }
+
+  trackByFn(index: number) {
+    return index;
+  }
 }

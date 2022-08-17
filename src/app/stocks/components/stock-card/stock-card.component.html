@@ -1,17 +1,20 @@
 <main class="card">
-  <h2>Name</h2>
+  <header class="header">
+    <h2>{{stock.symbol.description}}</h2>
+    <button class="remove-btn" (click)="removeItem()">x</button>
+  </header>
 
   <div class="card-content">
     <div>
-      <p>Change today: +22%</p>
-      <p>Opening price: $1,400</p>
+      <p>Change today: {{stock.quote.d}}</p>
+      <p>Opening price: {{stock.quote.o}}</p>
     </div>
 
     <div>
-      <p>Current price: $1,562</p>
-      <p>Hight price: $1,650</p>
+      <p>Current price: {{stock.quote.c}}</p>
+      <p>High price: {{stock.quote.h}}</p>
     </div>
   </div>
 
-  <button routerLink="sentiment/TSLA">Go to sentiment details</button>
+  <button [routerLink]="['sentiment/' + stock.symbol.symbol]">Go to sentiment details</button>
 </main>

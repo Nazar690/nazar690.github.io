@@ -12,6 +12,7 @@ import {
   StockListComponent,
   StockSearchComponent
 } from './components';
+import { MonthPipe } from './pipes/month.pipe';
 
 @NgModule({
   imports: [
@@ -26,7 +27,9 @@ import {
     StockDetailsComponent,
     StockLayoutComponent,
     StockListComponent,
-    StockSearchComponent
+    StockSearchComponent,
+
+    MonthPipe
   ]
 })
 export class StocksModule { }

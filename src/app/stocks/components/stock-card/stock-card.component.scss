@@ -1,11 +1,21 @@
 .card {
-    border: 1px solid #333;
-    border-radius: 4px;
-    padding: 12px 20px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 12px 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .remove-btn {
+    cursor: pointer;
+  }
 }
 
 .card-content {
-    display: flex;
-    align-items: center;
-    gap: 10px 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px 40px;
 }

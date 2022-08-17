@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 
 import { environment } from 'src/environments/environment';
 
-import { Stock, SymbolLookupModel } from '../models';
+import { Stock, SymbolLookupModel, SymbolModel } from '../models';
+import { SymbolSentimentLookup } from '../models/symbol-sentiment-lookup';
 
 @Injectable({
   providedIn: 'root'
@@ -15,24 +16,27 @@ export class StocksService {
   private baseUrl = `https://finnhub.io/api/v1/`;
   private token = `&token=${environment.apiKey}`;
 
-  searchAssets(search: string) {
+  searchSymbol(search: string) {
     return this.http.get<SymbolLookupModel>(this.baseUrl + 'search?q=' + search + this.token);
   }
 
   getQuote(symbol: string) {
-    return this.http.get(this.baseUrl + 'quote?symbol=' + symbol + this.token);
+    return this.http.get<Stock>(this.baseUrl + 'quote?symbol=' + symbol + this.token);
   }
 
   getSentiment(symbol: string, from: string | null, to: string | null) {
-    return this.http.get(this.baseUrl + `stock/insider-sentiment?symbol=${symbol }&from=${from}&${to}&${this.token}`);
+    return this.http.get<SymbolSentimentLookup>(this.baseUrl + `stock/insider-sentiment?symbol=${symbol }&from=${from}&${to}&${this.token}`);
   }
 
-  saveStock(stock: Stock) {
-    localStorage.setItem('t', JSON.stringify(stock));
+  saveStock(stocks: SymbolModel[], ) {
+    localStorage.setItem('stocks', JSON.stringify(stocks));
   }
 
-  removeStock(stock: Stock) {
-    localStorage.removeItem('t');
+  removeStock(symbol: string) {
+    let stocks = JSON.parse(localStorage.getItem('stocks') || '') as SymbolModel[];
+    stocks = stocks.filter(x => x.symbol !== symbol);
+
+    localStorage.setItem('stocks', JSON.stringify(stocks));
   }
 
 }

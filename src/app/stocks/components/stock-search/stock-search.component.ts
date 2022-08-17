@@ -1,9 +1,9 @@
-import { switchMap } from 'rxjs';
-
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 
 import { StocksService } from '../../services/stocks.service';
+import { SymbolModel } from '../../models';
+import { SymbolQuoteLookup } from '../../models/symbol-quote-lookup';
 
 @Component({
   selector: 'app-stock-search',
@@ -14,8 +14,9 @@ export class StockSearchComponent implements OnInit {
 
   search: FormControl;
   isLoading: boolean;
-  stockName: string;
-  stocks: any;
+  stockSymbol: SymbolModel = {} as SymbolModel;
+  stocks: SymbolModel[] = [];
+  stockInfo: SymbolQuoteLookup = {} as SymbolQuoteLookup;
 
   get disabled() {
     return !this.search.value?.trim()?.length || this.isLoading;
@@ -24,26 +25,28 @@ export class StockSearchComponent implements OnInit {
   constructor(private readonly stocksService: StocksService) {
     this.search = new FormControl<string>('');
     this.isLoading = false;
-    this.stockName = '';
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.stocks = JSON.parse(localStorage.getItem('stocks') || '[]');
+  }
 
   trackStocks() {
     this.isLoading = true;
     const value = this.search.value;
 
+    const stocks = JSON.parse(localStorage.getItem('stocks') || '[]');
+
     this.search.disable();
 
-    this.stocksService.searchAssets(value).pipe(switchMap(data => {
-      this.stocks = data.result[0];
-      return this.stocksService.getQuote(value)
-    }))
-    .subscribe(res => {
-      console.log(res);
-      this.isLoading = false;
-      this.search.enable();
-    });
+    this.stocksService.searchSymbol(value)
+      .subscribe(data => {
+        this.stockSymbol = data.result[0];
+        this.stocks = [...stocks, this.stockSymbol];
+        this.stocksService.saveStock(this.stocks);
+        this.isLoading = false;
+        this.search.enable();
+      });
   }
 
 }
