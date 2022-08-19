@@ -1,4 +1,4 @@
-import { SymbolModel } from "./symbol";
+import { SymbolModel } from "./symbol-model";
 
 export interface SymbolLookupModel {
     count: number;
