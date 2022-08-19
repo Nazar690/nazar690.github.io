@@ -5,8 +5,9 @@ import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
 
 import { StocksService } from '../../services';
-import { SymbolSentimentDetails } from '../../models/symbol-sentiment-details';
 
+import { SymbolModel } from '../../models';
+import { CURRENT_DATE, THREE_MONTH_FROM_NOW } from '../../utils/constants';
 import { SymbolSentimentLookup } from '../../models/symbol-sentiment-lookup';
 
 @Component({
@@ -17,14 +18,10 @@ import { SymbolSentimentLookup } from '../../models/symbol-sentiment-lookup';
 })
 export class StockDetailsComponent implements OnInit, OnDestroy {
 
-  stocks: SymbolSentimentLookup = {} as SymbolSentimentLookup;
+  isLoading = true;
+  symbol: SymbolModel = {} as SymbolModel;
+  stocksDetails: SymbolSentimentLookup = {} as SymbolSentimentLookup;
   subscription$ = new Subscription();
-  dateFrom = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() - 2,
-    new Date().getDate());
-
-  dateTo = new Date();
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -33,14 +30,20 @@ export class StockDetailsComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const from = this.datePipe.transform(this.dateFrom, 'yyyy-MM-dd');
-    const to = this.datePipe.transform(this.dateTo, 'yyyy-MM-dd');
+    const dateFrom = this.datePipe.transform(THREE_MONTH_FROM_NOW, 'yyyy-MM-dd') || '';
+    const dateTo = this.datePipe.transform(CURRENT_DATE, 'yyyy-MM-dd') || '';
 
     this.subscription$.add(
       this.route.params.pipe(switchMap(params => {
-        return this.stocksService.getSentiment(params['symbol'], from, to)
-      })).subscribe(res => this.stocks = res)
-    )
+        const symbol = params['symbol'];
+
+        this.symbol = this.stocksService.getStocks().find(x => x.symbol === symbol) || {} as SymbolModel;
+        return this.stocksService.getSentiment(symbol, dateFrom, dateTo)
+      })).subscribe(res => {
+        this.stocksDetails = res;
+        this.isLoading = false;
+      })
+    );
   }
 
   ngOnDestroy() {

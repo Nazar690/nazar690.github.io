@@ -1,17 +1,27 @@
-<button class="back-button" routerLink="/">Back to list of stocks</button>
+<ng-container *ngIf="!isLoading; else loadingState">
+  <button class="back-button" routerLink="/">Back to list</button>
 
-<h2>{{stocks.symbol}}</h2>
+  <h2>{{symbol.description}} ({{symbol.symbol}})</h2>
 
-<main class="content-contaniner">
-  <div class="stock-item" *ngFor="let item of stocks?.data; trackBy: trackByFn">
-    <div>
-      <h3>{{item.month | month}}</h3>
+  <main class="content-contaniner" *ngIf="stocksDetails?.data?.length; else emptyState">
+    <div class="stock-item" *ngFor="let item of stocksDetails?.data; trackBy: trackByFn">
+      <div>
+        <h3>{{item.month | month}}</h3>
 
-      <p>Change: {{item.change}}</p>
-      <p>MSPR: {{item.mspr}}</p>
+        <p>Change: {{item.change}}</p>
+        <p>MSPR: {{item.mspr}}</p>
+      </div>
+
+      <img *ngIf="item.mspr > 0" class="arrow-icon green" src="../../../../assets/svgs/arrow_up.svg" alt="Arrow up">
+      <img *ngIf="item.mspr < 0" class="arrow-icon red" src="../../../../assets/svgs/arrow_down.svg" alt="Arrow down">
     </div>
+  </main>
+</ng-container>
 
-    <img *ngIf="item.mspr > 0" class="arrow-icon green" src="../../../../assets/svgs/arrow_up.svg" alt="Arrow up">
-    <img *ngIf="item.mspr < 0" class="arrow-icon red" src="../../../../assets/svgs/arrow_down.svg" alt="Arrow down">
-  </div>
-</main>
+<ng-template #emptyState>
+  <div class="empty-state">Oops! No data found</div>
+</ng-template>
+
+<ng-template #loadingState>
+  <div class="loading-state">Loading...</div>
+</ng-template>

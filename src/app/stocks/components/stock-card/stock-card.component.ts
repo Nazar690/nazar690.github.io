@@ -12,9 +12,7 @@ export class StockCardComponent {
   @Input() stock!: SymbolQuoteLookup;
   @Output() removeEvent = new EventEmitter<string>();
 
-
   removeItem() {
     this.removeEvent.emit(this.stock.symbol.symbol);
   }
-
 }
