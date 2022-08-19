@@ -24,11 +24,15 @@ export class StocksService {
     return this.http.get<Stock>(this.baseUrl + 'quote?symbol=' + symbol + this.token);
   }
 
-  getSentiment(symbol: string, from: string | null, to: string | null) {
-    return this.http.get<SymbolSentimentLookup>(this.baseUrl + `stock/insider-sentiment?symbol=${symbol }&from=${from}&${to}&${this.token}`);
+  getSentiment(symbol: string, from: string, to: string) {
+    return this.http.get<SymbolSentimentLookup>(this.baseUrl + `stock/insider-sentiment?symbol=${symbol}&from=${from}&${to}&${this.token}`);
   }
 
-  saveStock(stocks: SymbolModel[], ) {
+  getStocks() {
+    return JSON.parse(localStorage.getItem('stocks') || '[]') as SymbolModel[];
+  }
+
+  saveStock(stocks: SymbolModel[],) {
     localStorage.setItem('stocks', JSON.stringify(stocks));
   }
 
