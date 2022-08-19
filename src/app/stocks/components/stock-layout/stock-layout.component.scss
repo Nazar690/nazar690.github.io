@@ -1,0 +1,24 @@
+.content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.search {
+    text-transform: uppercase;
+}
+
+.track-btn {
+    margin-left: 12px;
+}
+
+.loading-state {
+    margin: 20px 0;
+    font-size: 20px;
+    text-align: center;
+    visibility: hidden;
+
+    &.visible {
+        visibility: visible;
+    }
+}

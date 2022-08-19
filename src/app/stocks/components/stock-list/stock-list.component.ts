@@ -1,8 +1,10 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { combineLatest } from 'rxjs';
 
-import { SymbolModel } from '../../models/symbol';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+
+import { SymbolModel } from '../../models/symbol-model';
 import { SymbolQuoteLookup } from '../../models/symbol-quote-lookup';
+
 import { StocksService } from '../../services';
 
 @Component({

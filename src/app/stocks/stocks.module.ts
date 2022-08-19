@@ -10,8 +10,8 @@ import {
   StockDetailsComponent,
   StockLayoutComponent,
   StockListComponent,
-  StockSearchComponent
 } from './components';
+
 import { MonthPipe } from './pipes/month.pipe';
 
 @NgModule({
@@ -27,7 +27,6 @@ import { MonthPipe } from './pipes/month.pipe';
     StockDetailsComponent,
     StockLayoutComponent,
     StockListComponent,
-    StockSearchComponent,
 
     MonthPipe
   ]
