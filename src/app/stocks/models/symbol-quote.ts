@@ -1,4 +1,4 @@
-export interface Stock {
+export interface SymbolQuote {
     c: number;
     d: number;
     dp: number;

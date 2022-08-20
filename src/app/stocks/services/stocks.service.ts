@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { environment } from 'src/environments/environment';
 
-import { Stock, SymbolLookupModel, SymbolModel } from '../models';
+import { SymbolQuote, SymbolLookupModel, SymbolModel } from '../models';
 import { SymbolSentimentLookup } from '../models/symbol-sentiment-lookup';
 
 @Injectable({
@@ -21,7 +21,7 @@ export class StocksService {
   }
 
   getQuote(symbol: string) {
-    return this.http.get<Stock>(this.baseUrl + 'quote?symbol=' + symbol + this.token);
+    return this.http.get<SymbolQuote>(this.baseUrl + 'quote?symbol=' + symbol + this.token);
   }
 
   getSentiment(symbol: string, from: string, to: string) {
