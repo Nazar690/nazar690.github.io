@@ -1,9 +1,9 @@
-import { combineLatest, switchMap } from 'rxjs';
+import { forkJoin, switchMap, Subscription } from 'rxjs';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 
-import { SymbolModel, SymbolQuoteLookup } from '../../models';
+import { SymbolQuote, SymbolModel, SymbolQuoteLookup } from '../../models';
 
 import { StocksService } from '../../services';
 
@@ -12,11 +12,13 @@ import { StocksService } from '../../services';
   templateUrl: './stock-layout.component.html',
   styleUrls: ['./stock-layout.component.scss']
 })
-export class StockLayoutComponent implements OnInit {
+export class StockLayoutComponent implements OnInit, OnDestroy {
 
   isLoading: boolean = false;
   search: FormControl = new FormControl<string>('');
   stocksQuotes: SymbolQuoteLookup[] = []
+
+  subscription$ = new Subscription();
 
   get disabled() {
     return !this.search.value?.trim()?.length || this.isLoading;
@@ -25,21 +27,22 @@ export class StockLayoutComponent implements OnInit {
   constructor(private readonly stocksService: StocksService) { }
 
   ngOnInit() {
-    this.getStocksQuote();
+    this.getStockQuotes();
   }
 
-  getStocksQuote() {
+  ngOnDestroy() {
+    this.subscription$.unsubscribe();
+  }
+
+  getStockQuotes() {
     const stocks = this.stocksService.getStocks();
 
     if (!stocks.length) {
       return;
     }
 
-    const requests = stocks.map(x => this.stocksService.getQuote(x.symbol));
-
-    combineLatest(requests).subscribe(res => {
-      this.stocksQuotes = res.map((x, i) => ({ symbol: stocks[i], quote: x }));
-    });
+    const requests = stocks.reduce((acc, curr) => ({ ...acc, [curr.symbol]: this.stocksService.getQuote(curr.symbol) }), {});
+    forkJoin(requests).subscribe(res => this.stocksQuotes = stocks.map(x => ({ symbol: x, quote: res[x.symbol] })))
   }
 
   trackStocks() {
@@ -47,30 +50,44 @@ export class StockLayoutComponent implements OnInit {
     this.search.disable();
 
     let newSymbol: SymbolModel;
-    const stocks = this.stocksService.getStocks();
 
-    this.stocksService.searchSymbol(this.search.value)
-      .pipe(switchMap(data => {
-        newSymbol = data.result[0];
-        return this.stocksService.getQuote(newSymbol.symbol);
-      }))
-      .subscribe(quote => {
-        if (!this.isDuplicate(stocks, newSymbol.symbol)) {
-          this.addNewSymbol(stocks, newSymbol);
-          this.stocksQuotes = [...this.stocksQuotes, { symbol: newSymbol, quote }];
-        }
+    this.subscription$.add(
+      this.stocksService.searchSymbol(this.search.value)
+        .pipe(switchMap(data => {
+          if (!data.result.length) {
+            throw new Error();
+          }
 
-        this.isLoading = false;
-        this.search.enable();
-      });
+          newSymbol = data.result[0];
+          return this.stocksService.getQuote(newSymbol.symbol);
+        }))
+        .subscribe({
+          next: (quote => this.addNewSymbol(quote, newSymbol)),
+          error: (() => this.handleError())
+        })
+    );
   }
 
   isDuplicate(stocks: SymbolModel[], symbol: string) {
     return stocks.some(x => x.symbol.toUpperCase() === symbol.toUpperCase());
   }
 
-  addNewSymbol(stocks: SymbolModel[], symbol: SymbolModel) {
-    const newStocks = [...stocks, symbol];
-    this.stocksService.saveStock(newStocks);
+  addNewSymbol(quote: SymbolQuote, newSymbol: SymbolModel) {
+    const stocks = this.stocksService.getStocks();
+
+    if (!this.isDuplicate(stocks, newSymbol.symbol)) {
+      const newStocks = [...stocks, newSymbol];
+      this.stocksService.saveStock(newStocks);
+
+      this.stocksQuotes = [...this.stocksQuotes, { symbol: newSymbol, quote }];
+    }
+
+    this.isLoading = false;
+    this.search.enable();
+  }
+
+  handleError() {
+    this.isLoading = false;
+    this.search.enable();
   }
 }
