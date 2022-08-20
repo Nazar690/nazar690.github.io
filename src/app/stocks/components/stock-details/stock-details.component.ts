@@ -6,9 +6,8 @@ import { DatePipe } from '@angular/common';
 
 import { StocksService } from '../../services';
 
-import { SymbolModel } from '../../models';
+import { SymbolModel, SymbolSentimentLookup } from '../../models';
 import { CURRENT_DATE, THREE_MONTH_FROM_NOW } from '../../utils/constants';
-import { SymbolSentimentLookup } from '../../models/symbol-sentiment-lookup';
 
 @Component({
   selector: 'app-stock-details',

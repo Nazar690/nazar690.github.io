@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { SymbolQuoteLookup } from '../../models/symbol-quote-lookup';
+import { SymbolQuoteLookup } from '../../models';
 
 @Component({
   selector: 'app-stock-card',

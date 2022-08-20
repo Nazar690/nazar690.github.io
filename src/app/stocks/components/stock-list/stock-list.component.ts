@@ -1,9 +1,6 @@
-import { combineLatest } from 'rxjs';
+import { Component, Input } from '@angular/core';
 
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-
-import { SymbolModel } from '../../models/symbol-model';
-import { SymbolQuoteLookup } from '../../models/symbol-quote-lookup';
+import { SymbolQuoteLookup } from '../../models';
 
 import { StocksService } from '../../services';
 
@@ -12,36 +9,14 @@ import { StocksService } from '../../services';
   templateUrl: './stock-list.component.html',
   styleUrls: ['./stock-list.component.scss']
 })
-export class StockListComponent implements OnInit, OnChanges {
+export class StockListComponent {
 
-  @Input() stocks: SymbolModel[] = [];
-  stockDetails: SymbolQuoteLookup[] = []
+  @Input() stocks: SymbolQuoteLookup[] = [];
 
   constructor(private readonly stocksService: StocksService) { }
 
-  ngOnInit() {
-    const requests = this.stocks.map(x => this.stocksService.getQuote(x.symbol));
-
-    combineLatest(requests).subscribe(res => {
-      this.stockDetails = res.map((x, i) => ({ symbol: this.stocks[i], quote: x } as SymbolQuoteLookup));
-    });
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['stocks'].currentValue.length) {
-      const symbols = this.stocks.map(x => x.symbol);
-      const newSymbol = (changes['stocks'].currentValue as SymbolModel[]).slice(-1)[0];
-      // .find(x => !symbols.includes(x.symbol));
-
-      this.stocksService.getQuote(newSymbol.symbol).subscribe(res => {
-        this.stockDetails.push({ symbol: newSymbol, quote: res })
-      })
-    }
-  }
-
-  removeItem(symbol: string) {
+  removeItem(symbol: string, index: number) {
     this.stocksService.removeStock(symbol);
-    this.stocks = this.stocks.filter(x => x.symbol !== symbol);
-    this.stockDetails = this.stockDetails.filter(x => x.symbol.symbol !== symbol);
+    this.stocks.splice(index, 1);
   }
 }

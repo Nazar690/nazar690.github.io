@@ -1,5 +1,5 @@
 <main class="item-list">
-  <ng-container *ngFor="let item of stockDetails">
-    <app-stock-card [stock]="item" (removeEvent)="removeItem($event)"></app-stock-card>
+  <ng-container *ngFor="let item of stocks; let i = index">
+    <app-stock-card [stock]="item" (removeEvent)="removeItem($event, i)"></app-stock-card>
   </ng-container>
 </main>
